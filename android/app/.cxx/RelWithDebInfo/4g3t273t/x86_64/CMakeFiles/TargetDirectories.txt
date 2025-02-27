@@ -1,0 +1,2 @@
+C:/flutter-projects/bookstore/android/app/.cxx/RelWithDebInfo/4g3t273t/x86_64/CMakeFiles/edit_cache.dir
+C:/flutter-projects/bookstore/android/app/.cxx/RelWithDebInfo/4g3t273t/x86_64/CMakeFiles/rebuild_cache.dir
