@@ -3,6 +3,7 @@ import 'package:bookstore/common/widgets/builder/books_list.dart';
 import 'package:bookstore/common/widgets/drawer/custom_drawer.dart';
 import 'package:bookstore/common/widgets/loading/loading.dart';
 import 'package:bookstore/core/configs/theme/app_colors.dart';
+import 'package:bookstore/pages/books/pages/category_books_page.dart';
 import 'package:bookstore/provider/api_calls_provider.dart';
 import 'package:bookstore/provider/auth_user_provider.dart';
 import 'package:bookstore/utils/show_snackbar.dart';
@@ -28,7 +29,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   Future<void> _initializedData() async {
     final apiProvider = Provider.of<ApiCallsProvider>(context, listen: false);
     await apiProvider.syncUserDetails(context);
-    await apiProvider.getBooks();
+    await apiProvider.getHomePageBooks();
   }
 
   @override
@@ -155,107 +156,113 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                   SizedBox(
                     height: 30,
                   ),
-                  Column(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Love",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: BooksList(categoryName: "love"),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Tech",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: BooksList(categoryName: "tech"),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Fiction",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: BooksList(categoryName: "fiction"),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "History",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: BooksList(categoryName: "history"),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Comedy",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                            child: BooksList(categoryName: "comedy"),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  _buildCategorySection(context, "Love", "love"),
+                  _buildCategorySection(context, "Tech", "tech"),
+                  _buildCategorySection(context, "Fiction", "fiction"),
+                  _buildCategorySection(context, "History", "history"),
+                  _buildCategorySection(context, "Comedy", "comedy"),
+
+                  // Column(
+                  //   children: [
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "Love",
+                  //           style: TextStyle(
+                  //               fontWeight: FontWeight.bold, fontSize: 20),
+                  //         ),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         SizedBox(
+                  //           height: MediaQuery.of(context).size.height * 0.4,
+                  //           child: BooksList(categoryName: "love"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "Tech",
+                  //           style: TextStyle(
+                  //               fontWeight: FontWeight.bold, fontSize: 20),
+                  //         ),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         SizedBox(
+                  //           height: MediaQuery.of(context).size.height * 0.4,
+                  //           child: BooksList(categoryName: "tech"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "Fiction",
+                  //           style: TextStyle(
+                  //               fontWeight: FontWeight.bold, fontSize: 20),
+                  //         ),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         SizedBox(
+                  //           height: MediaQuery.of(context).size.height * 0.4,
+                  //           child: BooksList(categoryName: "fiction"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "History",
+                  //           style: TextStyle(
+                  //               fontWeight: FontWeight.bold, fontSize: 20),
+                  //         ),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         SizedBox(
+                  //           height: MediaQuery.of(context).size.height * 0.4,
+                  //           child: BooksList(categoryName: "history"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "Comedy",
+                  //           style: TextStyle(
+                  //               fontWeight: FontWeight.bold, fontSize: 20),
+                  //         ),
+                  //         SizedBox(
+                  //           height: 10,
+                  //         ),
+                  //         SizedBox(
+                  //           height: MediaQuery.of(context).size.height * 0.4,
+                  //           child: BooksList(categoryName: "comedy"),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
@@ -263,5 +270,54 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         );
       },
     );
+  }
+
+  Widget _buildCategorySection(
+      BuildContext context, String title, String category) {
+    return Consumer<ApiCallsProvider>(builder: (context, apiProvider, child) {
+      final books = apiProvider.getHomePageCategoryBooks(category);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 20, right: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            CategoryBooksPage(category: category),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'See all',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: BooksList(
+              categoryName: category,
+              books: books,
+              isHomePage: true,
+            ),
+          ),
+        ],
+      );
+    });
   }
 }

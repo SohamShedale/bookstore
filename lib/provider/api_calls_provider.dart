@@ -10,9 +10,11 @@ class ApiCallsProvider extends ChangeNotifier {
   String? _successMessage;
   Map<String, dynamic>? _userDetails;
   final List<Map<String, List<Map<String, dynamic>>>> _books = [];
-  final Map<String, List<Map<String, dynamic>>> _cachedBooks = {};
-  final int _booksCacheExpirationHours = 24;
-  int _booksCacheTimestamp = 0;
+
+  final Map<String, List<Map<String, dynamic>>> _homePageBooks = {};
+  final Map<String, List<Map<String, dynamic>>> _allBooks = {};
+  final Map<String, DocumentSnapshot?> _lastDocuments = {};
+  final int _pageSize = 5;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -35,6 +37,27 @@ class ApiCallsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool hasMoreBooks(String category) {
+    return _lastDocuments[category] != null;
+  }
+
+  Future<void> getHomePageBooks() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await Future.wait([
+        getBooksByCategory("comedy", limit: 5),
+        getBooksByCategory("fiction", limit: 5),
+        getBooksByCategory("history", limit: 5),
+        getBooksByCategory("love", limit: 5),
+        getBooksByCategory("tech", limit: 5),
+      ]);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> syncUserDetails(BuildContext context) async {
     final authProvider = Provider.of<AuthUserProvider>(context, listen: false);
 
@@ -52,77 +75,57 @@ class ApiCallsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> getBooksByCategory(String category) async {
-    if (_cachedBooks.containsKey(category) && !_isCacheExpired()) {
-      int existingCategoryIndex =
-          _books.indexWhere((element) => element.containsKey(category));
-
-      if (existingCategoryIndex != -1) {
-        _books[existingCategoryIndex][category] = _cachedBooks[category]!;
-      } else {
-        _books.add({category: _cachedBooks[category]!});
-      }
-      return;
-    }
-
-    _isLoading = true;
-    notifyListeners();
-
+  Future<void> getBooksByCategory(String category,
+      {int? limit, bool loadMore = false}) async {
     try {
-      List<Map<String, dynamic>> categoryBooks = [];
       CollectionReference booksCollection = _fireStore.collection("books");
       DocumentReference categoryDoc = booksCollection.doc(category);
       CollectionReference books = categoryDoc.collection("books");
-      QuerySnapshot booksSnapshot = await books.get();
 
+      Query query = books.orderBy('title');
+      if (loadMore && _lastDocuments.containsKey(category)) {
+        query = query.startAfterDocument(_lastDocuments[category]!);
+      }
+
+      QuerySnapshot booksSnapshot = await query.limit(limit ?? _pageSize).get();
+
+      List<Map<String, dynamic>> newBooks = [];
       for (var book in booksSnapshot.docs) {
         final bookData = book.data() as Map<String, dynamic>;
         bookData["id"] = book.id;
-        categoryBooks.add(bookData);
+        newBooks.add(bookData);
       }
 
-      _cachedBooks[category] = categoryBooks;
-      _booksCacheTimestamp = DateTime.now().millisecondsSinceEpoch;
+      if (booksSnapshot.docs.isNotEmpty) {
+        _lastDocuments[category] = booksSnapshot.docs.last;
+      }
 
-      int existingCategoryIndex =
-          _books.indexWhere((element) => element.containsKey(category));
-      if (existingCategoryIndex != -1) {
-        _books[existingCategoryIndex][category] = categoryBooks;
+      if (loadMore) {
+        _allBooks[category]?.addAll(newBooks);
       } else {
-        _books.add({category: categoryBooks});
+        if (limit == 5) {
+          _homePageBooks[category] = newBooks;
+        } else {
+          _allBooks[category] = newBooks;
+        }
       }
+
+      notifyListeners();
     } catch (e) {
       _errorMessage = "Failed to get books for $category: $e";
-    } finally {
-      _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> getBooks() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      await Future.wait([
-        getBooksByCategory("comedy"),
-        getBooksByCategory("fiction"),
-        getBooksByCategory("history"),
-        getBooksByCategory("love"),
-        getBooksByCategory("tech"),
-      ]);
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  Future<void> loadMoreBooks(String category) async {
+    await getBooksByCategory(category, loadMore: true);
   }
 
-  bool _isCacheExpired() {
-    if (_booksCacheTimestamp == 0) return true;
+  List<Map<String, dynamic>> getHomePageCategoryBooks(String category) {
+    return _homePageBooks[category] ?? [];
+  }
 
-    final cacheTime = DateTime.fromMillisecondsSinceEpoch(_booksCacheTimestamp);
-    final now = DateTime.now();
-    final difference = now.difference(cacheTime).inHours;
-
-    return difference > _booksCacheExpirationHours;
+  List<Map<String, dynamic>> getAllCategoryBooks(String category) {
+    return _allBooks[category] ?? [];
   }
 }
