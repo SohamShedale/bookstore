@@ -98,6 +98,8 @@ class ApiCallsProvider extends ChangeNotifier {
 
       if (booksSnapshot.docs.isNotEmpty) {
         _lastDocuments[category] = booksSnapshot.docs.last;
+      } else {
+        _lastDocuments.remove(category);
       }
 
       if (loadMore) {
