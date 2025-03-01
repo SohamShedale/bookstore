@@ -31,7 +31,7 @@ class BooksList extends StatelessWidget {
             if (apiProvider.hasMoreBooks(categoryName)) {
               return Loading();
             } else {
-              return SizedBox.shrink(); 
+              return SizedBox.shrink();
             }
           }
 

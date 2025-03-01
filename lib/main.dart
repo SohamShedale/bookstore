@@ -2,6 +2,7 @@ import 'package:bookstore/firebase_options.dart';
 import 'package:bookstore/pages/auth/pages/sign_in.dart';
 import 'package:bookstore/pages/auth/pages/sign_up.dart';
 import 'package:bookstore/pages/books/pages/home.dart';
+import 'package:bookstore/pages/books/pages/wish_list_books.dart';
 import 'package:bookstore/pages/cart/my_cart.dart';
 import 'package:bookstore/pages/welcome/pages/on_boarding_page.dart';
 import 'package:bookstore/provider/api_calls_provider.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
           "/signin": (context) => SignIn(),
           "/home": (context) => Home(),
           "/mycart": (context) => MyCart(),
+          "/wishlist": (context) => WishListBooks(),
         },
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,

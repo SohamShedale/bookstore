@@ -39,13 +39,13 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text("Home"),
           ),
-          // ListTile(
-          //   onTap: () {
-          //     Navigator.pushReplacementNamed(homeContext, "/mycart");
-          //   },
-          //   leading: Icon(Icons.favorite_border),
-          //   title: Text("My Wish List"),
-          // ),
+          ListTile(
+            onTap: () {
+              Navigator.pushReplacementNamed(homeContext, "/wishlist");
+            },
+            leading: Icon(Icons.favorite_border),
+            title: Text("My Wish List"),
+          ),
           ListTile(
             onTap: () {
               Navigator.pushReplacementNamed(homeContext, "/mycart");
